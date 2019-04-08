@@ -1,0 +1,106 @@
+#include "shot/AllStarShot_Const.txt"
+#include "script/helper.txt"
+
+let objBoss; //Enemy object
+let objScene = GetEnemyBossSceneObjectID();
+let frame = -30; //Counter for timing enemy movements.(Will keep increasing by one in @MainLoop)
+let idA; let idB; let idC; let idD;
+
+@Event
+{
+	alternative(GetEventType())
+	case (EV_REQUEST_LIFE) {
+		//The script asks for the enemy's life
+		SetScriptResult(2500); //Setting the enemy's life to 500
+	}
+	case (EV_REQUEST_TIMER) {
+		SetScriptResult(30);
+	}
+	case (EV_PLAYER_REBIRTH) {
+		deleteAll;
+	}
+}
+
+@Initialize
+{
+	InstallFont("font/lucon.ttf");
+	objBoss = ObjEnemy_Create(OBJ_ENEMY_BOSS);
+	ObjEnemy_Regist(objBoss);
+	ObjEnemy_SetDamageRate(objBoss, 100, 30);
+
+	let imgHong = "img/Hong Meiling/sprite.png";
+	ObjPrim_SetTexture(objBoss, imgHong); 
+	ObjSprite2D_SetSourceRect(objBoss, 0, 0, 30, 58); 
+	ObjSprite2D_SetDestCenter(objBoss); 
+
+	let cx = GetStgFrameWidth() / 2;
+	ObjMove_SetDestAtFrame(objBoss, cx, 85, 20);
+}
+
+@MainLoop
+{
+	let ex = ObjMove_GetX(objBoss);
+	let ey = ObjMove_GetY(objBoss);
+	
+	ObjEnemy_SetIntersectionCircleToShot(objBoss, ex, ey, 32);
+	ObjEnemy_SetIntersectionCircleToPlayer(objBoss, ex, ey, 24);
+	
+	frame++;
+	
+	if(ObjEnemy_GetInfo(objBoss, INFO_LIFE) <= 0)
+	{
+		TFinalize;
+	}
+	
+	if(frame % 240 == 0){
+		fire;
+	}
+	
+	yield;
+}
+
+task TFinalize {
+	Obj_Delete(objBoss);
+	DeleteShotAll(TYPE_ALL, TYPE_IMMEDIATE);
+	SetAutoDeleteObject(true);
+	CloseScript(GetOwnScriptID());
+	return;
+}
+
+task fire {
+	let radius = 100;
+	let loopCount = 12; //number of rings fired
+	let ringSize = 12; //number of bullets in each ring
+	let angle = 0; //angle around the circle that fires around boss
+	let ex = ObjMove_GetX(objBoss);
+	let ey = ObjMove_GetY(objBoss);
+	
+	while (angle < 180){
+		let tempAngle = 0;
+		loop(loopCount){
+			CreateShotA1(ex + radius * cos(angle), ey + radius * sin(angle), 1, tempAngle + randRange(90 / ringSize), ICE_RED, 20);
+			CreateShotA1(ex + radius * cos(angle), ey + radius * sin(angle), 1.5, tempAngle + randRange(90 / ringSize), ICE_RED, 20);
+			CreateShotA1(ex - radius * cos(angle), ey + radius * sin(angle), 1, tempAngle + randRange(90 / ringSize), ICE_GREEN, 20);
+			CreateShotA1(ex - radius * cos(angle), ey + radius * sin(angle), 1.5, tempAngle + randRange(90 / ringSize), ICE_GREEN, 20);
+			tempAngle += (360 / loopCount);
+		}
+		wait(60 / loopCount); //Fires for 60 frames
+		angle += (180 / loopCount);
+	}
+	
+	wait(30);
+	
+	angle = 180;
+	while (angle > 0){
+		let tempAngle = 0;
+		loop(loopCount){
+			CreateShotA1(ex + radius * cos(angle), ey + radius * sin(angle), 1, tempAngle + randRange(90 / ringSize), ICE_BLUE, 20);
+			CreateShotA1(ex + radius * cos(angle), ey + radius * sin(angle), 1.5, tempAngle + randRange(90 / ringSize), ICE_BLUE, 20);
+			CreateShotA1(ex - radius * cos(angle), ey + radius * sin(angle), 1, 180 - (tempAngle + randRange(90 / ringSize)), ICE_YELLOW, 20);
+			CreateShotA1(ex - radius * cos(angle), ey + radius * sin(angle), 1.5, 180 - (tempAngle + randRange(90 / ringSize)), ICE_YELLOW, 20);
+			tempAngle += (360 / loopCount);
+		}
+		wait(60 / loopCount); //Fires for 60 frames
+		angle -= (180 / loopCount);
+	}
+}

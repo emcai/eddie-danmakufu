@@ -1,0 +1,30 @@
+#include "script/helper.txt"
+
+@Event{
+}
+
+@Initialize{
+    TPlural;
+	//For testing. Comment next line
+	SetPlayerLife(99);
+}
+
+@MainLoop{
+    yield;
+}
+
+task TPlural{
+    let obj = ObjEnemyBossScene_Create();
+    ObjEnemyBossScene_Add(obj, 0, "script/PluralFlandre/ns3.txt");
+	ObjEnemyBossScene_Add(obj, 0, "script/PluralFlandre/sc1.txt");
+	ObjEnemyBossScene_Add(obj, 1, "script/PluralFlandre/ns4.txt");
+	ObjEnemyBossScene_Add(obj, 2, "script/PluralFlandre/ns5.txt");
+	ObjEnemyBossScene_Add(obj, 3, "script/PluralFlandre/ns1.txt");
+	ObjEnemyBossScene_Add(obj, 4, "script/PluralFlandre/ns2.txt");
+    ObjEnemyBossScene_LoadInThread(obj);
+    ObjEnemyBossScene_Regist(obj);
+    while(!Obj_IsDeleted(obj)){
+        yield;
+    }
+    CloseScript(GetOwnScriptID());
+}

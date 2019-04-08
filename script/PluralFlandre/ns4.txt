@@ -1,0 +1,99 @@
+#TouhouDanmakufu[Single]
+#ScriptVersion[3]
+#Title["Flandre Scarlet NS 4"]
+
+#include "shot/AllStarShot_Const.txt"
+#include "script/helper.txt"
+#include "script/cutin.txt"
+#include "script/boss_lib/GizmoSpriteLibrary.txt"
+
+let objBoss;
+let objScene = GetEnemyBossSceneObjectID();
+let frame = -80;
+let idA; let idB; let idC; let idD;
+
+@Event
+{
+	alternative(GetEventType())
+	case (EV_REQUEST_LIFE) {
+		SetScriptResult(2000);
+	}
+	case (EV_REQUEST_TIMER) {
+		SetScriptResult(30);
+	}
+	case (EV_PLAYER_REBIRTH) {
+		deleteAll;
+	}
+}
+
+@Initialize
+{
+	InstallFont("font/lucon.ttf");
+	objBoss = ObjEnemy_Create(OBJ_ENEMY_BOSS);
+	ObjEnemy_Regist(objBoss);
+	ObjEnemy_SetDamageRate(objBoss, 100, 20);
+
+	renderSanaeMoF(objBoss);
+	ObjSprite2D_SetSourceRect(objBoss, 10, 10, 40, 40); 
+	ObjSprite2D_SetDestCenter(objBoss); 
+
+	let cx = GetStgFrameWidth() / 2;
+	ObjMove_SetDestAtFrame(objBoss, cx, 85, 20);
+}
+
+@MainLoop
+{
+	let ex = ObjMove_GetX(objBoss);
+	let ey = ObjMove_GetY(objBoss);
+	
+	ObjEnemy_SetIntersectionCircleToShot(objBoss, ex, ey, 32);
+	ObjEnemy_SetIntersectionCircleToPlayer(objBoss, ex, ey, 24);
+	
+	frame++;
+	
+	if(ObjEnemy_GetInfo(objBoss, INFO_LIFE) <= 0)
+	{
+		TFinalize;
+	}
+	
+	if(frame % 30 == 0 && frame > -1){
+		fire;
+	}
+	
+	if((frame % 360 == 0 || frame % 360 == 270) && frame > -1){
+		move(-1);
+	}
+	else if((frame % 360 == 90 || frame % 360 == 180) && frame > -1){
+		move(1);
+	}
+	
+	yield;
+}
+
+task TFinalize {
+	Obj_Delete(objBoss);
+	DeleteShotAll(TYPE_ALL, TYPE_IMMEDIATE);
+	SetAutoDeleteObject(true);
+	CloseScript(GetOwnScriptID());
+	return;
+}
+
+task fire {
+	let angle = 0;
+	let ex = ObjMove_GetX(objBoss);
+	let ey = ObjMove_GetY(objBoss);
+	let loopCount = 45;
+	let randBuffer = randRange(loopCount);
+	
+	while (angle < 360) {
+		CreateShotA1(ex, ey, 2, angle + randBuffer, AMULET_RED, 5);
+		CreateShotA1(ex, ey, 2.5, angle + 2 * randBuffer, AMULET_BLUE, 25);
+		angle += (360 / loopCount);
+	}
+}
+
+function move(direction) {
+	let ex = ObjMove_GetX(objBoss);
+	
+	ObjMove_SetDestAtFrame(objBoss, ex + 80 * direction, 85, 45);
+}

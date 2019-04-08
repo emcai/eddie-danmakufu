@@ -1,0 +1,27 @@
+#include "script/helper.txt"
+
+@Initialize{
+	TPlural;
+	SetPlayerLife(99);
+}
+
+@MainLoop{
+	yield;
+}
+
+task TPlural{
+	let obj = ObjEnemyBossScene_Create();
+	ObjEnemyBossScene_Add(obj, 0, "script/PluralA/1 NS/lunatic.txt");
+	wait(60);
+	ObjEnemyBossScene_Add(obj, 0, "script/PluralA/1 SC/lunatic.txt");
+	wait(60);
+	ObjEnemyBossScene_Add(obj, 1, "script/PluralA/2 NS/lunatic.txt");
+	wait(60);
+	ObjEnemyBossScene_Add(obj, 1, "script/PluralA/2 SC/lunatic.txt");
+	ObjEnemyBossScene_LoadInThread(obj);
+	ObjEnemyBossScene_Regist(obj);
+	while (!Obj_IsDeleted(obj)){
+		yield;
+	}
+	CloseScript(GetOwnScriptID());
+}

@@ -1,0 +1,141 @@
+#TouhouDanmakufu[Player]
+#ScriptVersion[3]
+#Title["Reimu Hakurei A"]
+#Text["Standard Type[r][r]Shot: Homing Amulet[r]Persuasion Needle[r][r]Spell: Divine Spirit \"Fantasy[r]Seal\"[r]Dream Sign \"Evil-Sealing Circle\""]
+#ID["Reimu Hakurei A"]
+#Image["./img/cutIn.png"]
+#ReplayName["Reimu"]
+#include"./Reimu_Functions.txt"
+
+@Initialize{
+	
+	LoadPlayerShotData(GetCurrentScriptDirectory ~ "ShotData.txt");
+	ObjPlayer_AddIntersectionCircleA1(playerObject, 0, 0, 2, 20);
+	
+	SetPlayerAutoItemCollectLine(160);
+	SetPlayerSpeed(4, 2);
+	
+	powerEnabled = false;
+	shotType = 1;
+	
+	LoadSounds;
+	
+	DrawSprite;
+	DrawHitbox;
+	
+	CreateShots;
+	CreateOptions;
+}
+
+@MainLoop{
+	let tempAlive = playerAlive;
+	
+	yield;
+	
+	prevAlive = false;
+	if(tempAlive && playerAlive){prevAlive = true;}
+}
+
+@Event{
+	alternative(GetEventType())
+	
+	case(EV_REQUEST_SPELL){
+		
+		/*let spellCount = GetPlayerSpell();
+		
+		if(spellCount > 0){
+			SetScriptResult(true);
+			SetPlayerSpell(spellCount - 1);
+			
+			if(GetVirtualKeyState(VK_SLOWMOVE) == KEY_PUSH || GetVirtualKeyState(VK_SLOWMOVE) == KEY_HOLD){
+				Spell(true);
+			}
+			else{
+				Spell(false);
+			}
+		}
+		else{
+			SetScriptResult(false);
+		}*/
+		SetScriptResult(false);
+	}
+	
+	case(EV_GRAZE){
+		ObjSound_Play(grazeSound);
+		GrazeEffect;
+	}
+	
+	case(EV_HIT){
+		ObjSound_Play(deathSound);
+		playerHit = true;
+		ExplosionEffect;
+	}
+	
+	case(EV_PLAYER_SHOOTDOWN){
+		playerAlive = false;
+		playerHit = false;
+		
+		playerPower -= 359;
+		
+		let type = ITEM_POWER_S;
+		let count = 1;
+		let dir = 225;
+		
+		loop(9){
+			let x = GetPlayerX + 50*cos(dir);
+			let y = (GetPlayerY - 20) + 50*sin(dir);
+			
+			if(powerEnabled){DeathItem(type, GetPlayerX, GetPlayerY, x, y);}
+			
+			dir += 10;
+			
+			count++;
+			
+			if(count == 4 || count == 6 || count == 8){type = ITEM_POWER_S;}
+			if(count == 3 || count == 5 || count == 7){type = ITEM_POWER;}
+		}
+		deleteEnemyBullets;
+	}
+	
+	case(EV_PLAYER_REBIRTH){
+		
+		playerAlive = true;
+		playerHit = false;
+		
+		let spellCount = GetPlayerSpell();
+		
+		if(spellCount <= 5){
+			SetPlayerSpell(3);
+		}
+		else{
+			SetPlayerSpell(spellCount - 2);
+		}
+		
+		SetPlayerInvincibilityFrame(180);
+		MagicCircle(180);
+		BlinkEffect;
+		
+		DisableSpell(180);
+	}
+	
+	case(EV_GET_ITEM){
+		
+		ObjSound_Play(itemSound);
+		
+		let itemType = GetEventArgument(0);
+		alternative(itemType)
+		
+		case(ITEM_SPELL){WriteLog("ITEM_SPELL");}
+		case(ITEM_SPELL_S){WriteLog("ITEM_SPELL_S");}
+		case(ITEM_POWER){WriteLog("ITEM_POWER"); playerPower += 100;}
+		case(ITEM_POWER_S){WriteLog("ITEM_POWER_S"); playerPower++;}
+		
+		case(ITEM_SPELL || ITEM_SPELL_S){
+			ObjSound_Play(spellGetSound);
+		}
+		
+		case(ITEM_1UP || ITEM_1UP_S){
+			ObjSound_Play(lifeGetSound);
+		}
+	}
+}

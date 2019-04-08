@@ -1,0 +1,116 @@
+#include "shot/AllStarShot_Const.txt"
+#include "script/helper.txt"
+
+let objBoss; //Enemy object
+let objScene = GetEnemyBossSceneObjectID();
+let frame = -60; //Counter for timing enemy movements.(Will keep increasing by one in @MainLoop)
+let idA; let idB; let idC; let idD;
+
+
+@Event
+{
+	alternative(GetEventType())
+	case (EV_REQUEST_LIFE) {
+		//The script asks for the enemy's life
+		SetScriptResult(2500); //Setting the enemy's life to 500
+	}
+	case (EV_REQUEST_TIMER) {
+		SetScriptResult(30);
+	}
+	case (EV_PLAYER_REBIRTH) {
+		deleteAll;
+	}
+}
+
+@Initialize
+{
+	InstallFont("font/lucon.ttf");
+	objBoss = ObjEnemy_Create(OBJ_ENEMY_BOSS);
+	ObjEnemy_Regist(objBoss);
+	ObjEnemy_SetDamageRate(objBoss, 100, 30);
+
+	let imgHong = "img/Hong Meiling/sprite.png"; //file path to enemy image
+	ObjPrim_SetTexture(objBoss, imgHong); 
+	ObjSprite2D_SetSourceRect(objBoss, 0, 0, 30, 58); 
+	ObjSprite2D_SetDestCenter(objBoss); 
+
+	let cx = GetStgFrameWidth() / 2;
+	ObjMove_SetDestAtFrame(objBoss, cx, 85, 20);
+}
+
+@MainLoop
+{
+	let ex = ObjMove_GetX(objBoss);
+	let ey = ObjMove_GetY(objBoss);
+	
+	ObjEnemy_SetIntersectionCircleToShot(objBoss, ex, ey, 32); //hitbox against player bullets. 32 is the radius.
+	ObjEnemy_SetIntersectionCircleToPlayer(objBoss, ex, ey, 24); //hitbox against the player. 24 is the radius.
+	
+	frame++;
+	
+	if(ObjEnemy_GetInfo(objBoss, INFO_LIFE) <= 0)
+	{
+		TFinalize;
+	}
+	
+	if(frame % 120 == 0){
+		fire;
+	}
+	if(frame % 120 == 0){
+		fire2;
+	}
+	
+	yield;
+}
+
+task TFinalize {
+	Obj_Delete(objBoss);
+	DeleteShotAll(TYPE_ALL, TYPE_IMMEDIATE);
+	SetAutoDeleteObject(true);
+	CloseScript(GetOwnScriptID());
+	return;
+}
+
+task fire {
+	let groupCount = 36; //number of groups fired
+	let angle = 0; //angle around the circle that fires around boss
+	let ex = ObjMove_GetX(objBoss);
+	let ey = ObjMove_GetY(objBoss);
+	
+	while (angle < 360){
+		CreateShotA1(ex, ey, 2, angle - 3*(360 / groupCount + 6), ICE_RED, 20);
+		CreateShotA1(ex, ey, 2, angle - 2*(360 / groupCount + 6), ICE_ORANGE, 20);
+		CreateShotA1(ex, ey, 2, angle - (360 / groupCount + 6), ICE_YELLOW, 20);
+		CreateShotA1(ex, ey, 2, angle, ICE_GREEN, 20);
+		CreateShotA1(ex, ey, 2, angle + (360 / groupCount + 6), ICE_AQUA, 20);
+		CreateShotA1(ex, ey, 2, angle + 2*(360 / groupCount + 6), ICE_BLUE, 20);
+		CreateShotA1(ex, ey, 2, angle + 3*(360 / groupCount + 6), ICE_PURPLE, 20);
+
+		CreateShotA1(ex, ey, 2, 180 + angle - 3*(360 / groupCount + 6), ICE_RED, 20);
+		CreateShotA1(ex, ey, 2, 180 + angle - 2*(360 / groupCount + 6), ICE_ORANGE, 20);
+		CreateShotA1(ex, ey, 2, 180 + angle - (360 / groupCount + 6), ICE_YELLOW, 20);
+		CreateShotA1(ex, ey, 2, 180 + angle, ICE_GREEN, 20);
+		CreateShotA1(ex, ey, 2, 180 + angle + (360 / groupCount + 6), ICE_AQUA, 20);
+		CreateShotA1(ex, ey, 2, 180 + angle + 2*(360 / groupCount + 6), ICE_BLUE, 20);
+		CreateShotA1(ex, ey, 2, 180 + angle + 3*(360 / groupCount + 6), ICE_PURPLE, 20);
+		angle += (360 / groupCount);
+		wait (120 / groupCount); //number of frames / number of groups
+	}
+}
+
+task fire2 {
+	let counter = 360;
+	let angle = GetAngleToPlayer(objBoss);
+	let fireCount = 45;
+	let ex = ObjMove_GetX(objBoss);
+	let ey = ObjMove_GetY(objBoss);
+	
+	while (counter > 0){
+		CreateShotA1(ex, ey, 2.5, angle + counter, GLOW_RED, 20);
+		CreateShotA1(ex, ey, 2.5, 270 + angle + counter + 3, GLOW_BLUE, 20);
+		CreateShotA1(ex, ey, 2.5, 180 + angle + counter + 6, GLOW_GREEN, 20);
+		CreateShotA1(ex, ey, 2.5, 90 + angle + counter + 9, GLOW_YELLOW, 20);
+		counter -= (360 / fireCount);
+		wait (120 / fireCount);
+	}
+}

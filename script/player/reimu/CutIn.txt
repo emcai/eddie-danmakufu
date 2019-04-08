@@ -1,0 +1,265 @@
+let spellName;
+let spellNameGhost;
+let nameEffect;
+
+let spellNameDeleted = true;
+let spellNameGhostDeleted = true;
+let nameEffectDeleted = true;
+
+let cutInAlpha = 0;
+
+task SpellUseName(n){
+	
+	spellNameDeleted = false;
+	spellNameGhostDeleted = false;
+	
+	spellName = ObjText_Create;
+	ObjText_SetText(spellName, n);
+	
+	ObjRender_SetX(spellName, 16);
+	ObjRender_SetY(spellName, 418);
+	ObjText_SetMaxWidth(spellName, 500);
+	
+	ObjText_SetFontSize(spellName, 14);
+	ObjText_SetFontBold(spellName, true);
+	ObjText_SetFontType(spellName, "Arial");
+	ObjText_SetFontColorTop(spellName, 128, 128, 228);
+	
+	spellNameGhost = ObjText_Create;
+	ObjText_SetText(spellNameGhost, n);
+	
+	ObjRender_SetX(spellNameGhost, 16);
+	ObjRender_SetY(spellNameGhost, 418);
+	ObjText_SetMaxWidth(spellNameGhost, 500);
+	
+	ObjText_SetFontSize(spellNameGhost, 14);
+	ObjText_SetFontBold(spellNameGhost, true);
+	ObjText_SetFontType(spellNameGhost, "Arial");
+	ObjText_SetFontColorTop(spellNameGhost, 128, 128, 228);
+	
+	let tScale1 = 10;
+	let tScale2 = 10;
+	
+	let tAlpha1 = 0;
+	let tAlpha2 = 0;
+	
+	let yOff = 400;
+	
+	let tYOff1 = -yOff;
+	let tYOff2 = -yOff;
+	
+	ascent(i in 0..90){
+		if(!spellNameDeleted){
+			ObjRender_SetY(spellName, 418 + tYOff1);
+			
+			ObjRender_SetY(spellNameGhost, 418 + tYOff2);
+			
+			ObjRender_SetScaleXYZ(spellName, tScale1, tScale1, tScale1);
+			ObjRender_SetScaleXYZ(spellNameGhost, tScale2, tScale2, tScale2);
+			
+			ObjRender_SetAlpha(spellNameGhost, tAlpha2);
+			ObjRender_SetAlpha(spellName, tAlpha1);
+			
+			if(i + 1 <= 60){
+				tScale1 -= 9/60;
+				tAlpha1 += 255/60;
+				
+				tYOff1 += yOff/60;
+			}
+			
+			if(i + 1 >= 30){
+				tScale2 -= 9/60;
+				tAlpha2 += 255/60;
+				
+				tYOff2 += yOff/60;
+			}
+			
+			yield;
+		}
+	}
+	
+	if(!spellNameDeleted){
+		Obj_Delete(spellNameGhost);
+		spellNameGhostDeleted = true;
+	}
+	
+	nameEffectDeleted = false;
+	
+	nameEffect = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjRender_SetBlendType(nameEffect, BLEND_ALPHA);
+	Obj_SetRenderPriority(nameEffect, 0.40);
+	ObjPrim_SetTexture(nameEffect, GetCurrentScriptDirectory() ~ "img/effect.png");
+	ObjSprite2D_SetDestRect(nameEffect, -128, -20, 128, 20);
+	ObjSprite2D_SetSourceRect(nameEffect, 0, 64, 256, 104);
+	
+	let eScale = 10;
+	
+	let eAlpha = 0;
+	
+	let xOff = 400;
+	yOff = 400;
+	
+	let eXOff = xOff;
+	let eYOff = -yOff;
+	
+	loop(60){
+		if(!spellNameDeleted){
+			ObjRender_SetX(nameEffect, 144 + eXOff);
+			ObjRender_SetY(nameEffect, 424 + eYOff);
+			
+			ObjRender_SetScaleXYZ(nameEffect, eScale, eScale, eScale);
+			ObjRender_SetAlpha(nameEffect, eAlpha);
+			
+			eScale -= 9/60;
+			eAlpha += 195/60;
+			
+			eXOff -= xOff/60;
+			eYOff += yOff/60;
+			yield;
+		}
+	}
+	
+	loop(30){yield;}
+	
+	let x = 14;
+	let y = 418;
+	
+	while(x > 0 && !spellNameDeleted){
+		ObjRender_SetY(spellName, y);
+		ObjRender_SetY(nameEffect, y);
+		
+		y -= x;
+		
+		if(y < 220){
+			x -= 0.58;
+		}
+		yield;
+	}
+	
+	if(!spellNameDeleted){
+		ObjRender_SetY(spellName, 46);
+		ObjRender_SetY(nameEffect, 46);
+	}
+	
+	loop(120){yield;}
+	
+	xOff = 0;
+	
+	loop(120){
+		if(!spellNameDeleted){
+			ObjRender_SetX(spellName, 16 + xOff);
+			ObjRender_SetX(nameEffect, 144 + xOff);
+			
+			xOff -= 10;
+			
+			yield;
+		}
+	}
+	
+	if(!spellNameDeleted){
+		Obj_Delete(spellName);
+		Obj_Delete(nameEffect);
+		
+		spellNameDeleted = true;
+		nameEffectDeleted = true;
+	}
+}
+
+task DeleteSpellName{
+	if(!spellNameDeleted){
+		
+		spellNameDeleted = true;
+		
+		Obj_Delete(spellName);
+		if(!spellNameGhostDeleted){Obj_Delete(spellNameGhost);}
+		if(!nameEffectDeleted){Obj_Delete(nameEffect);}
+	}
+}
+
+task SpellUseCutIn(img, left, top, right, bottom, scale){
+	
+	let effect1 = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(effect1, GetCurrentScriptDirectory() ~ "img/cutInEffect.png");
+	ObjRender_SetBlendType(effect1, BLEND_ALPHA);
+	Obj_SetRenderPriority(effect1, 0.52);
+	
+	let effect2 = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(effect2, GetCurrentScriptDirectory() ~ "img/cutInEffect.png");
+	ObjRender_SetBlendType(effect2, BLEND_ALPHA);
+	Obj_SetRenderPriority(effect2, 0.52);
+	ObjRender_SetAngleZ(effect2, 270);
+	
+	let effect3 = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjRender_SetScaleXYZ(effect3, scale, scale, scale);
+	ObjRender_SetBlendType(effect3, BLEND_ALPHA);
+	Obj_SetRenderPriority(effect3, 0.52);
+	ObjPrim_SetTexture(effect3, img);
+	
+	let width = right - left;
+	let height = bottom - top;
+	
+	ObjRender_SetX(effect3, -4 + (width*scale));
+	
+	ObjSprite2D_SetSourceRect(effect1, 0, 0, 80, 1356);
+	ObjSprite2D_SetSourceRect(effect2, 0, 0, 80, 1356);
+	ObjSprite2D_SetSourceRect(effect3, left, top, right, bottom);
+	
+	ObjSprite2D_SetDestRect(effect1, -40, -768, 40, 768);
+	ObjSprite2D_SetDestRect(effect2, -40, -768, 40, 768);
+	ObjSprite2D_SetDestRect(effect3, -width, -height, width, height);
+	
+	let x1 = 40;
+	let y1 = -306;
+	
+	let x2 = -376;
+	let y2 = 444;
+	
+	let y3 = (height/2) - 144;
+	
+	let fall = false;
+	while(cutInAlpha > -1){
+		
+		ObjRender_SetX(effect1, x1);
+		ObjRender_SetY(effect1, y1);
+		
+		ObjRender_SetX(effect2, x2);
+		ObjRender_SetY(effect2, y2);
+		
+		ObjRender_SetY(effect3, y3);
+		
+		ObjRender_SetAlpha(effect1, cutInAlpha);
+		ObjRender_SetAlpha(effect2, cutInAlpha);
+		ObjRender_SetAlpha(effect3, cutInAlpha/1.75);
+		
+		x1 += 1;
+		y1 += 6;
+		
+		x2 += 6;
+		y2 -= 1;
+		
+		y3 += 1.125;
+		
+		if(cutInAlpha > 255){
+			fall = true;
+			addAlpha;
+		}
+		
+		if(!fall){
+			cutInAlpha += 3;
+		}
+		
+		yield;
+	}
+	
+	Obj_Delete(effect1);
+	Obj_Delete(effect2);
+	Obj_Delete(effect3);
+}
+
+task addAlpha{
+	loop(60){yield;}
+	while(cutInAlpha > 0){
+		cutInAlpha -= 0.4;
+		yield;
+	}
+}

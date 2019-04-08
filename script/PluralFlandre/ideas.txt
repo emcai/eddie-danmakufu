@@ -1,0 +1,11 @@
+Ideas:
+Fear "Claustrophobia" - done
+Terror "Recurring Nightmare" - bubbles appear first upwards then crash onto the player
+Trap "No Place to Run" - dense "walls" of bullets appear, which the player must manuever through while avoiding bullets from the boss
+Fear "No Escape from the Past" - done
+Trap "Death by 1000 Cuts" - many thin lasers flood the screen and attempt to hit the player
+Terror "Malicious Whirlwind" - Bubbles in a hurricane style around the player
+Fear "Triple Jeopardy" - three clones of the boss each throw a smaller version of earlier spell cards
+Trap "Mirage of Safety" - bullets/lasers appear to be straight but suddenly start curving very weirdly
+Paranoia "Impending Doom" (Survival) - rings of bullets surround the player's location non-stop
+Terror "Non-Stop Nightmare" (Final) - final spellcard, tbd - throws all danmaku at the player

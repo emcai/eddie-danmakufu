@@ -1,0 +1,41 @@
+function wait(n){loop(n){yield;}}
+
+function GetCenterX(){
+    return GetStgFrameWidth() / 2;
+}
+ 
+function GetCenterY(){
+    return GetStgFrameHeight() / 2;
+}
+ 
+function randRange(n){
+	return round(rand(-n, n));
+}
+
+function deleteAll(){
+	DeleteShotAll(TYPE_SHOT, TYPE_FADE);
+}
+
+function distance(objA, objB){
+	let xDist = ObjMove_GetX(objA) - ObjMove_GetX(objB);
+	let yDist = ObjMove_GetY(objA) - ObjMove_GetY(objB);
+	return power(power(xDist, 2) + power(yDist, 2), 0.5);
+}
+
+//Returns the angle from objA to objB
+function getAngleTo(objA, objB){
+	if (distance(objA, objB) < 1){
+		return 0;
+	}
+	let xDist = ObjMove_GetX(objA) - ObjMove_GetX(objB);
+	let yDist = ObjMove_GetY(objA) - ObjMove_GetY(objB);
+	if (xDist == 0 && yDist > 0){
+		return 270;
+	}
+	else if (xDist == 0 && yDist < 0){
+		return 90;
+	}
+	else{
+		return 180 + atan2(yDist, xDist);
+	}
+}

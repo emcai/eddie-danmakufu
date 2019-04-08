@@ -1,0 +1,37 @@
+#TouhouDanmakufu[Stage]
+#ScriptVersion[3]
+#Title["Flandre Scarlet Fight"]
+#Text["Flandre Scarlet Boss Fight"]
+
+#include "script/helper.txt"
+
+@Initialize{
+	TStage();
+}
+
+@MainLoop{
+	yield;
+}
+
+task TStage(){
+	let bgm = ObjSound_Create();
+	ObjSound_Load(bgm, "bgm/unowenwasher.mp3");
+	ObjSound_SetSoundDivision(bgm, SOUND_BGM);
+	ObjSound_SetLoopEnable(bgm, true);
+	ObjSound_SetLoopTime(bgm, 0, 124); //when it gets to the 2:42 mark, goes back to beginning and loops
+	ObjSound_Play(bgm);
+	
+	let idScript;
+	idScript = LoadScriptInThread("script/PluralFlandre/Fight.txt");
+	
+	loop(60){yield;}
+	StartScript(idScript);
+	
+	while(!IsCloseScript(idScript) && GetPlayerState() != STATE_END){
+		yield;
+	}
+	
+	wait(120);
+	
+	CloseStgScene();
+}

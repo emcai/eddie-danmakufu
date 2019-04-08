@@ -1,0 +1,128 @@
+#TouhouDanmakufu[Single]
+#ScriptVersion[3]
+#Title["Flandre Scarlet SC 1"]
+
+#include "shot/AllStarShot_Const.txt"
+#include "script/helper.txt"
+#include "script/cutin.txt"
+#include "script/boss_lib/GizmoSpriteLibrary.txt"
+
+let objBoss;
+let objScene = GetEnemyBossSceneObjectID();
+let frame = -80;
+let idA; let idB; let idC; let idD;
+
+@Event
+{
+	alternative(GetEventType())
+	case (EV_REQUEST_LIFE) {
+		SetScriptResult(600);
+	}
+	case (EV_REQUEST_TIMER) {
+		SetScriptResult(50);
+	}
+	case (EV_PLAYER_REBIRTH) {
+		deleteAll;
+	}
+}
+
+@Initialize
+{
+	InstallFont("font/lucon.ttf");
+	objBoss = ObjEnemy_Create(OBJ_ENEMY_BOSS);
+	ObjEnemy_Regist(objBoss);
+	ObjEnemy_SetDamageRate(objBoss, 20, 4);
+	
+	let cutin = "img/Flandre Scarlet/cutin.png";
+	ObjCutin_LaunchS3(NAZRIN, cutin, "Lunatic");
+	let card1 = ObjText_Create();
+	ObjText_SetText(card1, "Fear \"Claustrophobia\"");
+	ObjText_SetFontSize(card1, 16);
+    ObjText_SetFontType(card1, "Ludica Console");
+    ObjText_SetFontBold(card1, true);
+	ObjRender_SetX(card1, 80);
+	ObjRender_SetY(card1, 15);
+	
+	ObjEnemyBossScene_StartSpell(objScene);
+
+	renderSanaeMoF(objBoss); 
+	ObjSprite2D_SetSourceRect(objBoss, 10, 10, 40, 40); 
+	ObjSprite2D_SetDestCenter(objBoss); 
+
+	let cx = GetStgFrameWidth() / 2;
+	ObjMove_SetDestAtFrame(objBoss, cx, 85, 20);
+}
+
+@MainLoop
+{
+	let ex = ObjMove_GetX(objBoss);
+	let ey = ObjMove_GetY(objBoss);
+	
+	ObjEnemy_SetIntersectionCircleToShot(objBoss, ex, ey, 32);
+	ObjEnemy_SetIntersectionCircleToPlayer(objBoss, ex, ey, 24);
+	
+	frame++;
+	
+	if(ObjEnemy_GetInfo(objBoss, INFO_LIFE) <= 0)
+	{
+		TFinalize;
+	}
+	
+	if(frame % 240 == 0 && frame > -1){
+		fire;
+	}
+	
+	if(frame % 40 == 0 && frame > -1){
+		fire2;
+	}
+	
+	yield;
+}
+
+task TFinalize {
+	if(ObjEnemyBossScene_GetInfo(objScene, INFO_PLAYER_SHOOTDOWN_COUNT)
+      +ObjEnemyBossScene_GetInfo(objScene, INFO_PLAYER_SPELL_COUNT) == 0){
+		AddScore(ObjEnemyBossScene_GetInfo(objScene, INFO_SPELL_SCORE));
+	}
+	
+	Obj_Delete(objBoss);
+	DeleteShotAll(TYPE_ALL, TYPE_IMMEDIATE);
+	SetAutoDeleteObject(true);
+	CloseScript(GetOwnScriptID());
+	return;
+}
+
+//criss-cross of lasers
+task fire {
+	let counter = randRange(40);
+	
+	while (counter < GetStgFrameWidth() * 1.5){
+		CreateStraightLaserA1(counter, -100, 90, 999, 80, 150, C_LASER_RED, 60);
+		counter += 75;
+	}
+	
+	counter = randRange(20);
+	while (counter < GetStgFrameHeight() * 1.5){
+		CreateStraightLaserA1(-100, counter, 0, 999, 80, 150, C_LASER_RED, 60);
+		counter += 75;
+	}
+	
+	
+}
+
+//small bullets firing
+task fire2 {
+	let ex = ObjMove_GetX(objBoss);
+	let ey = ObjMove_GetY(objBoss);
+	let loopCount = 20;
+	let angle = 0;
+	let counter = 0;
+	let buffer = GetAngleToPlayer(objBoss) + randRange(360 / loopCount);
+
+	while (counter < loopCount){
+		CreateShotA1(ex, ey, 1.5, buffer + angle, PCB_LARGE_RED, 10);
+		CreateShotA1(ex, ey, 2.5, buffer + angle, PCB_LARGE_RED, 10);
+		angle += (360 / loopCount);
+		counter += 1;
+	}
+}

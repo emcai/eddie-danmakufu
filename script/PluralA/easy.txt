@@ -1,0 +1,22 @@
+@Initialize{
+	TPlural;
+	SetPlayerLife(99);
+}
+
+@MainLoop{
+	yield;
+}
+
+task TPlural{
+	let obj = ObjEnemyBossScene_Create();
+	ObjEnemyBossScene_Add(obj, 0, "script/PluralA/1 NS/easy.txt");
+	ObjEnemyBossScene_Add(obj, 0, "script/PluralA/1 SC/easy.txt");
+	ObjEnemyBossScene_Add(obj, 1, "script/PluralA/2 NS/easy.txt");
+	ObjEnemyBossScene_Add(obj, 1, "script/PluralA/2 SC/easy.txt");
+	ObjEnemyBossScene_LoadInThread(obj);
+	ObjEnemyBossScene_Regist(obj);
+	while (!Obj_IsDeleted(obj)){
+		yield;
+	}
+	CloseScript(GetOwnScriptID());
+}

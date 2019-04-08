@@ -1,0 +1,122 @@
+#include "shot/AllStarShot_Const.txt"
+#include "script/cutin.txt"
+#include "script/helper.txt"
+
+let objBoss; //Enemy object
+let objScene = GetEnemyBossSceneObjectID();
+let frame = 0; //Counter for timing enemy movements.(Will keep increasing by one in @MainLoop)
+let idA; let idB; let idC; let idD;
+
+@Event
+{
+	alternative(GetEventType())
+	case (EV_REQUEST_LIFE) {
+		//The script asks for the enemy's life
+		SetScriptResult(500); //Setting the enemy's life to 500
+	}
+	case (EV_REQUEST_TIMER) {
+		SetScriptResult(60);
+	}
+	case (EV_REQUEST_SPELL_SCORE) {
+		SetScriptResult(1000000);
+	}
+	case (EV_PLAYER_REBIRTH) {
+		deleteAll;
+		frame = -20;
+	}
+}
+
+@Initialize
+{
+	InstallFont("font/lucon.ttf");
+	objBoss = ObjEnemy_Create(OBJ_ENEMY_BOSS);
+	ObjEnemy_Regist(objBoss);
+	ObjEnemy_SetDamageRate(objBoss, 20, 4);
+	
+	let cutin = "img/Hong Meiling/cutin.jpg";
+	ObjCutin_LaunchS3(NAZRIN, cutin, "Lunatic");
+	let card1 = ObjText_Create();
+	ObjText_SetText(card1, "Illusion \"Multi-Colored Danmaku\"");
+	ObjText_SetFontSize(card1, 16);
+    ObjText_SetFontType(card1, "Ludica Console");
+    ObjText_SetFontBold(card1, true);
+	ObjRender_SetX(card1, 80);
+	ObjRender_SetY(card1, 15);
+
+	ObjEnemyBossScene_StartSpell(objScene);
+
+	let imgHong = "img/Hong Meiling/sprite.png";
+	ObjPrim_SetTexture(objBoss, imgHong); 
+	ObjSprite2D_SetSourceRect(objBoss, 0, 0, 30, 58); 
+	ObjSprite2D_SetDestCenter(objBoss); 
+
+	let cx = GetStgFrameWidth() / 2;
+	ObjMove_SetDestAtFrame(objBoss, cx, 85, 20);
+}
+
+@MainLoop
+{
+	let ex = ObjMove_GetX(objBoss);
+	let ey = ObjMove_GetY(objBoss);
+	
+	ObjEnemy_SetIntersectionCircleToShot(objBoss, ex, ey, 32); //hitbox against player bullets. 32 is the radius.
+	ObjEnemy_SetIntersectionCircleToPlayer(objBoss, ex, ey, 24); //hitbox against the player. 24 is the radius.
+	
+	if (frame == 1){
+		beginfire;
+	}
+	
+	frame++;
+	
+	if(ObjEnemy_GetInfo(objBoss, INFO_LIFE) <= 0)
+	{
+		TFinalize;
+	}
+	
+	if(frame % 90 == 0 && frame > 60){
+		fire;
+	}
+	yield;
+}
+
+task TFinalize {
+	if(ObjEnemyBossScene_GetInfo(objScene, INFO_PLAYER_SHOOTDOWN_COUNT)
+      +ObjEnemyBossScene_GetInfo(objScene, INFO_PLAYER_SPELL_COUNT) == 0){
+		AddScore(ObjEnemyBossScene_GetInfo(objScene, INFO_SPELL_SCORE));
+	}
+	
+	Obj_Delete(objBoss);
+	DeleteShotAll(TYPE_ALL, TYPE_IMMEDIATE);
+	SetAutoDeleteObject(true);
+	CloseScript(GetOwnScriptID());
+	return;
+}
+	
+task beginfire {
+	let ey = ObjMove_GetY(objBoss);
+	idA = CreateShotA1(GetCenterX() - 160, 160, 0, 0, PCB_LARGE_GREEN, 60);
+	idB = CreateShotA1(GetCenterX() - 80, 80, 0, 0, PCB_LARGE_BLUE, 60);
+	idC = CreateShotA1(GetCenterX() + 80, 80, 0, 0, PCB_LARGE_YELLOW, 60);
+	idD = CreateShotA1(GetCenterX() + 160, 160, 0, 0, PCB_LARGE_RED, 60);
+	ObjShot_SetSpellResist(idA, true);
+	ObjShot_SetSpellResist(idB, true);
+	ObjShot_SetSpellResist(idC, true);
+	ObjShot_SetSpellResist(idD, true);
+}
+
+task fire {
+	let loopCount = 24;
+	let angle = randRange(360 / loopCount);
+	loop(loopCount){
+		CreateShotOA1(idA, 2, angle, PELLET_GREEN, 10);
+		CreateShotOA1(idA, 2.5, angle, PELLET_GREEN, 10);
+		CreateShotOA1(idB, 2, angle, PELLET_BLUE, 10);
+		CreateShotOA1(idB, 2.5, angle, PELLET_BLUE, 10);
+		CreateShotOA1(idC, 2, angle, PELLET_YELLOW, 10);
+		CreateShotOA1(idC, 2.5, angle, PELLET_YELLOW, 10);
+		CreateShotOA1(idD, 2, angle, PELLET_RED, 10);
+		CreateShotOA1(idD, 2.5, angle, PELLET_RED, 10);
+		angle += 360 / loopCount;
+	}
+	wait(30);
+}

@@ -1,0 +1,144 @@
+#TouhouDanmakufu[Stage]
+#ScriptVersion[3]
+#Title["Hong Meiling Fight"]
+#Text["Hong Meiling Boss Fight"]
+
+#include "script/helper.txt"
+
+let press = 0;
+
+@Initialize{
+	difficultyMenu();
+}
+
+@MainLoop{
+	yield;
+}
+
+task difficultyMenu{
+	let objText = ObjText_Create;
+	ObjText_SetText(objText, "Please Select Difficulty");
+	ObjRender_SetX(20, objText);	
+	ObjRender_SetY(GetCenterY(), objText);
+	
+	wait(30);
+	
+	let state = 0;
+	let easy = ObjPrim_Create(OBJ_SPRITE_2D);
+	let normal = ObjPrim_Create(OBJ_SPRITE_2D);
+	let hard = ObjPrim_Create(OBJ_SPRITE_2D);
+	let lunatic = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(easy, "img/easy.png");
+	ObjSprite2D_SetSourceRect(easy, 0, 1, 256, 130);
+	ObjSprite2D_SetDestCenter(easy);
+	ObjRender_SetPosition(easy, 384 / 2, 442 / 2, 1);
+	
+	while(press == 0){
+		if(GetVirtualKeyState(VK_LEFT) == KEY_PUSH){
+			if (state == 1){
+				state = 0;
+				Obj_Delete(normal);
+				easy = ObjPrim_Create(OBJ_SPRITE_2D);
+				ObjPrim_SetTexture(easy, "img/easy.png");
+				ObjSprite2D_SetSourceRect(easy, 0, 1, 256, 130);
+				ObjSprite2D_SetDestCenter(easy);
+				ObjRender_SetPosition(easy, 384 / 2, 442 / 2, 1);
+			}
+			else if (state == 2){
+				state = 1;
+				Obj_Delete(hard);
+				normal = ObjPrim_Create(OBJ_SPRITE_2D);
+				ObjPrim_SetTexture(normal, "img/normal.png");
+				ObjSprite2D_SetSourceRect(normal, 0, 1, 256, 130);
+				ObjSprite2D_SetDestCenter(normal);
+				ObjRender_SetPosition(normal, 384 / 2, 442 / 2, 1);
+			}
+			else if (state == 3){
+				state = 2;
+				Obj_Delete(lunatic);
+				hard = ObjPrim_Create(OBJ_SPRITE_2D);
+				ObjPrim_SetTexture(hard, "img/hard.png");
+				ObjSprite2D_SetSourceRect(hard, 0, 1, 256, 130);
+				ObjSprite2D_SetDestCenter(hard);
+				ObjRender_SetPosition(hard, 384 / 2, 442 / 2, 1);
+			}
+		}
+		else if(GetVirtualKeyState(VK_RIGHT) == KEY_PUSH){
+			if (state == 0){
+				state = 1;
+				Obj_Delete(easy);
+				normal = ObjPrim_Create(OBJ_SPRITE_2D);
+				ObjPrim_SetTexture(normal, "img/normal.png");
+				ObjSprite2D_SetSourceRect(normal, 0, 1, 256, 130);
+				ObjSprite2D_SetDestCenter(normal);
+				ObjRender_SetPosition(normal, 384 / 2, 442 / 2, 1);
+			}
+			else if (state == 1){
+				state = 2;
+				Obj_Delete(normal);
+				hard = ObjPrim_Create(OBJ_SPRITE_2D);
+				ObjPrim_SetTexture(hard, "img/hard.png");
+				ObjSprite2D_SetSourceRect(hard, 0, 1, 256, 130);
+				ObjSprite2D_SetDestCenter(hard);
+				ObjRender_SetPosition(hard, 384 / 2, 442 / 2, 1);
+			}
+			else if (state == 2){
+				state = 3;
+				Obj_Delete(hard);
+				lunatic = ObjPrim_Create(OBJ_SPRITE_2D);
+				ObjPrim_SetTexture(lunatic, "img/lunatic.png");
+				ObjSprite2D_SetSourceRect(lunatic, 0, 1, 256, 130);
+				ObjSprite2D_SetDestCenter(lunatic);
+				ObjRender_SetPosition(lunatic, 384 / 2, 442 / 2, 1);
+			}
+		}
+		else if(GetVirtualKeyState(VK_SHOT) == KEY_PUSH){
+			clean(objText, easy, normal, hard, lunatic);
+			TStage(state);
+		}
+		yield;
+	}
+}
+
+task clean(objText, easy, normal, hard, lunatic){
+	press++;
+	Obj_Delete(easy);
+	Obj_Delete(normal);
+	Obj_Delete(hard);
+	Obj_Delete(lunatic);
+	Obj_Delete(objText);
+}
+
+task TStage(difficulty){
+	let bgm = ObjSound_Create();
+	ObjSound_Load(bgm, "bgm/shanghaialiceofmeiji17.mp3");
+	ObjSound_SetSoundDivision(bgm, SOUND_BGM);
+	ObjSound_SetLoopEnable(bgm, true);
+	ObjSound_SetLoopTime(bgm, 0, 162); //when it gets to the 2:42 mark, goes back to beginning and loops
+	ObjSound_Play(bgm);
+	
+	let idScript;
+	if (difficulty == 0){
+		idScript = LoadScriptInThread("script/PluralA/easy.txt");
+	}
+	else if (difficulty == 1){
+		idScript = LoadScriptInThread("script/PluralA/normal.txt");
+	}
+	else if (difficulty == 2){
+		idScript = LoadScriptInThread("script/PluralA/hard.txt");
+	}
+	else if (difficulty == 3){
+		idScript = LoadScriptInThread("script/PluralA/lunatic.txt");
+	}
+	
+	loop(60){yield;}
+	StartScript(idScript);
+	
+	while(!IsCloseScript(idScript) && GetPlayerState() != STATE_END){
+		yield;
+	}
+	
+	loop(120){yield;}
+	
+	CloseStgScene();
+}
