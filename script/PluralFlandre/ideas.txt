@@ -1,10 +1,10 @@
 Ideas:
 Fear "Claustrophobia" - done
-Terror "Recurring Nightmare" - bubbles appear first upwards then crash onto the player
-Trap "No Place to Run" - dense "walls" of bullets appear, which the player must manuever through while avoiding bullets from the boss
+Terror "Recurring Nightmare" - bubbles appear first upwards then crash onto the player. Link for reference: http://www.smwcentral.net/?p=viewthread&t=26435&page=2&pid=694632#p694632
+Trap "No Place to Run" - 8 fairies appear that each fire rings of bullets. Boss fires sweeping side to side lasers.
 Fear "No Escape from the Past" - done
-Trap "Death by 1000 Cuts" - many thin lasers flood the screen and attempt to hit the player
-Terror "Malicious Whirlwind" - Bubbles in a hurricane style around the player
+Trap "Death by 1000 Cuts" - many thin lasers flood the screen and attempt to hit the player, while the boss shoots rings at player
+Terror "Malicious Whirlwind" - Four "hurricanes" of bullets surround the corners of the map, then start moving around.
 Fear "Triple Jeopardy" - three clones of the boss each throw a smaller version of earlier spell cards
 Trap "Mirage of Safety" - bullets/lasers appear to be straight but suddenly start curving very weirdly
 Paranoia "Impending Doom" (Survival) - rings of bullets surround the player's location non-stop
