@@ -11,6 +11,7 @@ let objBoss;
 let objScene = GetEnemyBossSceneObjectID();
 let frame = -80;
 let idA; let idB; let idC; let idD;
+let objBullet;
 
 @Event
 {
@@ -19,7 +20,7 @@ let idA; let idB; let idC; let idD;
 		SetScriptResult(2000);
 	}
 	case (EV_REQUEST_TIMER) {
-		SetScriptResult(30);
+		SetScriptResult(45);
 	}
 	case (EV_PLAYER_REBIRTH) {
 		deleteAll;
@@ -39,6 +40,8 @@ let idA; let idB; let idC; let idD;
 
 	let cx = GetStgFrameWidth() / 2;
 	ObjMove_SetDestAtFrame(objBoss, cx, 85, 20);
+	
+	objBullet = createSoundEffect("script/snd/Bullet.wav");
 }
 
 @MainLoop
@@ -56,7 +59,7 @@ let idA; let idB; let idC; let idD;
 		TFinalize;
 	}
 	
-	if(frame % 30 == 0 && frame > -1){
+	if(frame % 20 == 0 && frame > -1){
 		fire;
 	}
 	
@@ -82,8 +85,10 @@ task fire {
 	let angle = 0;
 	let ex = ObjMove_GetX(objBoss);
 	let ey = ObjMove_GetY(objBoss);
-	let loopCount = 75;
+	let loopCount = 72;
 	let randBuffer = randRange(loopCount);
+	
+	ObjSound_Play(objBullet);
 	
 	while (angle < 360) {
 		CreateShotA1(ex, ey, 2.5, angle + randBuffer, AMULET_RED, 5);

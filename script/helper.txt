@@ -39,3 +39,10 @@ function getAngleTo(objA, objB){
 		return 180 + atan2(yDist, xDist);
 	}
 }
+
+function createSoundEffect(path) {
+	let obj = ObjSound_Create();
+	ObjSound_Load(obj, path);
+	ObjSound_SetLoopEnable(obj, false);
+	return obj;
+}

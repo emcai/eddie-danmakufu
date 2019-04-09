@@ -11,6 +11,7 @@ let objBoss;
 let objScene = GetEnemyBossSceneObjectID();
 let frame = -80;
 let idA; let idB; let idC; let idD;
+let objBullet; let objLaser;
 
 @Event
 {
@@ -51,6 +52,9 @@ let idA; let idB; let idC; let idD;
 
 	let cx = GetStgFrameWidth() / 2;
 	ObjMove_SetDestAtFrame(objBoss, cx, 85, 20);
+	
+	objBullet = createSoundEffect("script/snd/Bullet.wav");
+	objLaser = createSoundEffect("script/snd/Laser.wav");
 }
 
 @MainLoop
@@ -97,17 +101,17 @@ task fire {
 	let counter = randRange(40);
 	
 	while (counter < GetStgFrameWidth() * 1.5){
-		CreateStraightLaserA1(counter, -100, 90, 999, 80, 150, C_LASER_RED, 60);
+		CreateStraightLaserA1(counter, -100, 90, 999, 60, 150, C_LASER_RED, 60);
 		counter += 75;
 	}
 	
 	counter = randRange(20);
 	while (counter < GetStgFrameHeight() * 1.5){
-		CreateStraightLaserA1(-100, counter, 0, 999, 80, 150, C_LASER_RED, 60);
+		CreateStraightLaserA1(-100, counter, 0, 999, 60, 150, C_LASER_RED, 60);
 		counter += 75;
 	}
 	
-	
+	ObjSound_Play(objLaser);
 }
 
 //small bullets firing
@@ -125,4 +129,6 @@ task fire2 {
 		angle += (360 / loopCount);
 		counter += 1;
 	}
+	
+	ObjSound_Play(objBullet);
 }

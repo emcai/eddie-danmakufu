@@ -1,6 +1,6 @@
 #TouhouDanmakufu[Single]
 #ScriptVersion[3]
-#Title["Flandre Scarlet NS 1"]
+#Title["Flandre Scarlet NS 6"]
 
 #include "shot/AllStarShot_Const.txt"
 #include "script/helper.txt"
@@ -20,7 +20,7 @@ let objBullet;
 		SetScriptResult(2000);
 	}
 	case (EV_REQUEST_TIMER) {
-		SetScriptResult(45);
+		SetScriptResult(30);
 	}
 	case (EV_PLAYER_REBIRTH) {
 		deleteAll;
@@ -59,7 +59,7 @@ let objBullet;
 		TFinalize;
 	}
 	
-	if(frame % 30 == 0 && frame > -1){
+	if(frame % 30 == 0 && frame >= 0){
 		fire;
 	}
 	
@@ -82,16 +82,21 @@ task TFinalize {
 }
 
 task fire {
-	let angle = 0;
+	let angle = GetAngleToPlayer(objBoss);
+	let tempAngle = 0;
 	let ex = ObjMove_GetX(objBoss);
 	let ey = ObjMove_GetY(objBoss);
-	let loopCount = 40;
+	let loopCount = 24;
 	let randBuffer = randRange(loopCount);
 	
-	while (angle < 360) {
-		CreateShotA1(ex, ey, 2, angle + randBuffer, AMULET_RED, 5);
-		CreateShotA1(ex, ey, 1.5, angle + randBuffer, AMULET_BLUE, 5);
-		angle += (360 / loopCount);
+	while (tempAngle < 360) {
+		CreateShotA1(ex + 80, ey, 2, angle + randBuffer + tempAngle, AMULET_BLUE, 5);
+		CreateShotA1(ex + 80, ey, 1.5, angle + randBuffer + tempAngle, AMULET_BLUE, 5);
+		CreateShotA1(ex - 80, ey, 2, angle + randBuffer + tempAngle, AMULET_RED, 5);
+		CreateShotA1(ex - 80, ey, 1.5, angle + randBuffer + tempAngle, AMULET_RED, 5);
+		CreateShotA1(ex, ey - 80, 2, angle + randBuffer + tempAngle, AMULET_GRAY, 5);
+		CreateShotA1(ex, ey - 80, 1.5, angle + randBuffer + tempAngle, AMULET_GRAY, 5);
+		tempAngle += (360 / loopCount);
 	}
 	
 	ObjSound_Play(objBullet);
