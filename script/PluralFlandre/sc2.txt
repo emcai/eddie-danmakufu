@@ -137,7 +137,7 @@ task fire {
 	let two = CreateShotOA1(objFairy, 0, 0, SMALL_RED, 0);
 	wait(100);
 	
-	let loopCount = 15;
+	let loopCount = 12;
 	let temp = 0;
 	let buff = randRange(360 / loopCount);
 	ObjSound_Play(objBullet);
@@ -152,7 +152,7 @@ task fire {
 	Obj_Delete(two);
 }
 
-//boss shoots hearts at the player
+//boss shoots bullets at the player
 task fire2 {
 	let ex = ObjMove_GetX(objBoss);
 	let ey = ObjMove_GetY(objBoss);

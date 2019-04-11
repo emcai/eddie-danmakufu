@@ -59,7 +59,7 @@ let objBullet;
 		TFinalize;
 	}
 	
-	if(frame % 30 == 0 && frame > -1){
+	if(frame % 30 == 0 && frame > -1 && (frame % 300 <= 200)){
 		fire;
 	}
 	

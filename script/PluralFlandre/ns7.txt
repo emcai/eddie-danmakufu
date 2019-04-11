@@ -1,6 +1,6 @@
 #TouhouDanmakufu[Single]
 #ScriptVersion[3]
-#Title["Flandre Scarlet NS 6"]
+#Title["Flandre Scarlet NS 7"]
 
 #include "shot/AllStarShot_Const.txt"
 #include "script/helper.txt"
