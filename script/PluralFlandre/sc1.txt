@@ -118,7 +118,7 @@ task fire {
 task fire2 {
 	let ex = ObjMove_GetX(objBoss);
 	let ey = ObjMove_GetY(objBoss);
-	let loopCount = 20;
+	let loopCount = 24;
 	let angle = 0;
 	let counter = 0;
 	let buffer = GetAngleToPlayer(objBoss) + randRange(360 / loopCount);

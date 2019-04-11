@@ -22,7 +22,7 @@ task TPlural{
 	ObjEnemyBossScene_Add(obj, 2, "script/PluralFlandre/ns1.txt");
 	ObjEnemyBossScene_Add(obj, 3, "script/PluralFlandre/ns4.txt");
 	ObjEnemyBossScene_Add(obj, 4, "script/PluralFlandre/ns2.txt");
-	ObjEnemyBossScene_Add(obj, 5, "script/PluralFlandre/ns2.txt");
+	ObjEnemyBossScene_Add(obj, 5, "script/PluralFlandre/ns6.txt");
     ObjEnemyBossScene_LoadInThread(obj);
     ObjEnemyBossScene_Regist(obj);
     while(!Obj_IsDeleted(obj)){

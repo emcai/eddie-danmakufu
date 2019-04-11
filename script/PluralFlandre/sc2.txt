@@ -13,6 +13,7 @@ let objFairy;
 let objScene = GetEnemyBossSceneObjectID();
 let frame = -80;
 let followBullet;
+let objBullet; let objBulletWave;
 
 @Event
 {
@@ -57,6 +58,9 @@ let followBullet;
 
 	let cx = GetStgFrameWidth() / 2;
 	ObjMove_SetDestAtFrame(objBoss, cx, 85, 20);
+	
+	objBullet = createSoundEffect("script/snd/Bullet.wav");
+	objBulletWave = createSoundEffect("script/snd/BulletWave.wav");
 }
 
 @MainLoop
@@ -79,9 +83,18 @@ let followBullet;
 	}
 	
 	if (frame % 60 == 0 && frame > 0){
-		follow;
-		fire;
+		if (GetPlayerState() != STATE_DOWN) {
+			follow;
+			fire;
+		}
+		else {
+			ObjMove_SetDestAtFrame(objFairy, GetStgFrameWidth() / 2, 85, 10);
+		}
 	}
+	
+	if (frame % 30 == 0 && frame >= 60){
+		fire2;
+	}	
 	
 	yield;
 }
@@ -99,14 +112,14 @@ task TFinalize {
 	return;
 }
 
-//bullets to follow the character
+//fairy to follow the character
 task startFire {
 	renderTinyGoreF(objFairy, 1);
 	ObjShot_SetSpellResist(objFairy, true);
 	ObjMove_SetDestAtFrame(objFairy, GetStgFrameWidth() / 2, 85, 10);
 }
 
-//let followBullet follow the player
+//let the fairy follow the player
 task follow {
 	ObjShot_SetSpellResist(objFairy, true);
 	ObjMove_AddPatternA1(objFairy, 0, 3, getAngleTo(objFairy, GetPlayerObjectID()));
@@ -114,24 +127,40 @@ task follow {
 	ObjMove_AddPatternA1(objFairy, 0, 0, 0);
 }
 
-//put other bullets in path of first bullet
+//put other bullets in path of fairy
 task fire {
 	wait(10);
+	ObjSound_Play(objBulletWave);
 	let one = CreateShotOA1(objFairy, 0, 0, SMALL_RED, 0);
 	wait(10);
+	ObjSound_Play(objBulletWave);
 	let two = CreateShotOA1(objFairy, 0, 0, SMALL_RED, 0);
 	wait(100);
 	
-	let loopCount = 12;
+	let loopCount = 15;
 	let temp = 0;
 	let buff = randRange(360 / loopCount);
+	ObjSound_Play(objBullet);
 	while (temp < loopCount){
-		CreateShotOA1(one, 1.5, buff + temp * (360 / loopCount), DOT_BLUE, 0);
-		CreateShotOA1(two, 1.5, buff + temp * (360 / loopCount), DOT_BLUE, 0);
-		CreateShotOA1(one, 1, buff + temp * (360 / loopCount), DOT_BLUE, 0);
-		CreateShotOA1(two, 1, buff + temp * (360 / loopCount), DOT_BLUE, 0);
+		CreateShotOA1(one, 2.5, buff + temp * (360 / loopCount), DOT_BLUE, 0);
+		CreateShotOA1(two, 2.5, buff + temp * (360 / loopCount), DOT_BLUE, 0);
+		CreateShotOA1(one, 2, buff + temp * (360 / loopCount), DOT_BLUE, 0);
+		CreateShotOA1(two, 2, buff + temp * (360 / loopCount), DOT_BLUE, 0);
 		temp += 1;
 	}
 	Obj_Delete(one);
 	Obj_Delete(two);
+}
+
+//boss shoots hearts at the player
+task fire2 {
+	let ex = ObjMove_GetX(objBoss);
+	let ey = ObjMove_GetY(objBoss);
+	let loopCount = 6;
+	let temp = 0;
+	while (temp < loopCount){
+		CreateShotA1(ex, ey, 2, (frame / 10) + 0 + (temp * (180 / loopCount)), DOT_RED, 10);
+		CreateShotA1(ex, ey, 2, (frame / 10) + 180 + (temp * (180 / loopCount)), DOT_RED, 10);
+		temp += 1;
+	}
 }
