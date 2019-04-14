@@ -11,7 +11,7 @@ let objBoss;
 let objScene = GetEnemyBossSceneObjectID();
 let frame = -80;
 let idA; let idB; let idC; let idD;
-let objBullet;
+let objBullet; let objBulletWave;
 
 @Event
 {
@@ -42,6 +42,7 @@ let objBullet;
 	ObjMove_SetDestAtFrame(objBoss, cx, 85, 20);
 	
 	objBullet = createSoundEffect("script/snd/Bullet.wav");
+	objBulletWave = createSoundEffect("script/snd/BulletWave.wav");
 }
 
 @MainLoop
@@ -81,25 +82,37 @@ task TFinalize {
 	return;
 }
 
+//boss shoots first bullets towards player
 task fire {
 	let angle = GetAngleToPlayer(objBoss);
 	let tempAngle = 0;
 	let ex = ObjMove_GetX(objBoss);
 	let ey = ObjMove_GetY(objBoss);
-	let loopCount = 24;
-	let randBuffer = randRange(loopCount);
+	let loopCount = 20;
+	let randBuffer = randRange(loopCount / 2);
+	let bullet;
 	
 	while (tempAngle < 360) {
-		CreateShotA1(ex + 80, ey, 2, angle + randBuffer + tempAngle, AMULET_BLUE, 5);
-		CreateShotA1(ex + 80, ey, 1.5, angle + randBuffer + tempAngle, AMULET_BLUE, 5);
-		CreateShotA1(ex - 80, ey, 2, angle + randBuffer + tempAngle, AMULET_RED, 5);
-		CreateShotA1(ex - 80, ey, 1.5, angle + randBuffer + tempAngle, AMULET_RED, 5);
-		CreateShotA1(ex, ey - 80, 2, angle + randBuffer + tempAngle, AMULET_GRAY, 5);
-		CreateShotA1(ex, ey - 80, 1.5, angle + randBuffer + tempAngle, AMULET_GRAY, 5);
+		bullet = CreateShotA1(ex + 80, ey, 2, angle + randBuffer + tempAngle, AMULET_RED, 5);
+		fire2(bullet, angle + randBuffer + tempAngle);
 		tempAngle += (360 / loopCount);
 	}
 	
 	ObjSound_Play(objBullet);
+}
+
+//first bullets explode into three more bullets towards player
+task fire2 (bullet, angle) {
+	wait(90);
+	ObjMove_AddPatternA1(bullet, 0, 0, 0);
+	wait(20);
+	ObjSound_Play(objBulletWave);
+	CreateShotOA1(bullet, 2, angle - 50, AMULET_BLUE, 0);
+	CreateShotOA1(bullet, 2, angle - 25, AMULET_BLUE, 0);
+	CreateShotOA1(bullet, 2, angle, AMULET_BLUE, 0);
+	CreateShotOA1(bullet, 2, angle + 25, AMULET_BLUE, 0);
+	CreateShotOA1(bullet, 2, angle + 50, AMULET_BLUE, 0);
+	Obj_Delete(bullet);
 }
 
 function move(direction) {

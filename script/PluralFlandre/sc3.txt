@@ -1,6 +1,6 @@
 #TouhouDanmakufu[Single]
 #ScriptVersion[3]
-#Title["Flandre Scarlet SC 1"]
+#Title["Flandre Scarlet SC 3"]
 
 #include "shot/AllStarShot_Const.txt"
 #include "script/helper.txt"
@@ -11,7 +11,7 @@ let objBoss;
 let objScene = GetEnemyBossSceneObjectID();
 let frame = -80;
 let idA; let idB; let idC; let idD;
-let objBullet; let objLaser;
+let objBullet; let objBulletWave;
 
 @Event
 {
@@ -37,7 +37,7 @@ let objBullet; let objLaser;
 	let cutin = "img/Flandre Scarlet/cutin.png";
 	ObjCutin_LaunchS3(NAZRIN, cutin, "Lunatic");
 	let card1 = ObjText_Create();
-	ObjText_SetText(card1, "Fear \"Claustrophobia\"");
+	ObjText_SetText(card1, "Terror \"Recurring Nightmare\"");
 	ObjText_SetFontSize(card1, 16);
     ObjText_SetFontType(card1, "Ludica Console");
     ObjText_SetFontBold(card1, true);
@@ -54,7 +54,7 @@ let objBullet; let objLaser;
 	ObjMove_SetDestAtFrame(objBoss, cx, 85, 20);
 	
 	objBullet = createSoundEffect("script/snd/Bullet.wav");
-	objLaser = createSoundEffect("script/snd/Laser.wav");
+	objBulletWave = createSoundEffect("script/snd/BulletWave.wav");
 }
 
 @MainLoop
@@ -76,10 +76,6 @@ let objBullet; let objLaser;
 		fire;
 	}
 	
-	if(frame % 40 == 0 && frame > -1){
-		fire2;
-	}
-	
 	yield;
 }
 
@@ -96,40 +92,47 @@ task TFinalize {
 	return;
 }
 
-//criss-cross of lasers
 task fire {
-	let counter = randRange(10);
-	
-	while (counter < GetStgFrameWidth() * 1.5){
-		CreateStraightLaserA1(counter, -100, 90, 999, 30, 150, C_LASER_RED, 60);
-		counter += 38;
-	}
-	
-	counter = randRange(20);
-	while (counter < GetStgFrameHeight() * 1.5){
-		CreateStraightLaserA1(-100, counter, 0, 999, 30, 150, C_LASER_RED, 60);
-		counter += 38;
-	}
-	
-	ObjSound_Play(objLaser);
-}
-
-//small bullets firing
-task fire2 {
 	let ex = ObjMove_GetX(objBoss);
 	let ey = ObjMove_GetY(objBoss);
-	let loopCount = 60;
+	let loopCount = 10;
 	let angle = 0;
 	let counter = 0;
 	let buffer = randRange(360 / loopCount);
 	let buffer2 = randRange(50);
 
 	while (counter < loopCount){
-		CreateShotA1(ex, ey, 1.5, buffer + angle, PELLET_RED, 10);
-		CreateShotA1(ex, ey, 2, buffer + angle, PELLET_RED, 10);
+		bounceShot(ex, ey, 3, buffer + angle, PELLET_RED, 10);
 		angle += (360 / loopCount);
 		counter += 1;
 	}
 	
 	ObjSound_Play(objBullet);
+}
+
+//task for bouncy shots
+task bounceShot(x, y, speed, angle, graphic, delay) {
+	let max_bounce = 2;
+	let obj = CreateShotA1(x, y, speed, angle, graphic, delay);
+	
+	while(!Obj_IsDeleted(obj)) {
+		//bounces off left or right wall
+		if(ObjRender_GetX(obj) < 0 || ObjRender_GetX(obj) > GetStgFrameWidth && max_bounce > 0) {
+			ObjMove_SetAngle(obj, 180 - ObjMove_GetAngle(obj));
+			max_bounce -= 1;
+			ObjSound_Play(objBulletWave);
+		}
+		
+		//bounces off top or bottom wall
+		if(ObjRender_GetY(obj) < 0 || ObjRender_GetY(obj) > GetStgFrameHeight && max_bounce > 0) {
+			ObjMove_SetAngle(obj, -ObjMove_GetAngle(obj));
+			max_bounce -= 1;
+			ObjSound_Play(objBulletWave);
+		}
+		
+		if (max_bounce <= 0) {
+			break;
+		}
+		yield;
+	}
 }

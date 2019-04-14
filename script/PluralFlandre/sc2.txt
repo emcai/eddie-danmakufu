@@ -122,7 +122,7 @@ task startFire {
 //let the fairy follow the player
 task follow {
 	ObjShot_SetSpellResist(objFairy, true);
-	ObjMove_AddPatternA1(objFairy, 0, 3, getAngleTo(objFairy, GetPlayerObjectID()));
+	ObjMove_AddPatternA1(objFairy, 0, 2.25, getAngleTo(objFairy, GetPlayerObjectID()));
 	wait(30);
 	ObjMove_AddPatternA1(objFairy, 0, 0, 0);
 }
