@@ -76,6 +76,19 @@ let objBullet; let objBulletWave;
 		fire;
 	}
 	
+	if (frame % 480 == 0 && frame > -1){
+		ObjMove_SetDestAtFrame(objBoss, GetStgFrameWidth() / 2 - 60, 140, 30);
+	}
+	else if (frame % 480 == 120 && frame > -1){
+		ObjMove_SetDestAtFrame(objBoss, GetStgFrameWidth() / 2, 200, 30);
+	}
+	else if (frame % 480 == 240 && frame > -1){
+		ObjMove_SetDestAtFrame(objBoss, GetStgFrameWidth() / 2 + 60, 140, 30);
+	}
+	else if (frame % 480 == 360 && frame > -1){
+		ObjMove_SetDestAtFrame(objBoss, GetStgFrameWidth() / 2, 80, 30);
+	}
+	
 	yield;
 }
 
@@ -95,18 +108,33 @@ task TFinalize {
 task fire {
 	let ex = ObjMove_GetX(objBoss);
 	let ey = ObjMove_GetY(objBoss);
-	let loopCount = 10;
-	let angle = 0;
-	let counter = 0;
-	let buffer = randRange(360 / loopCount);
-	let buffer2 = randRange(50);
-
-	while (counter < loopCount){
-		bounceShot(ex, ey, 3, buffer + angle, PELLET_RED, 10);
-		angle += (360 / loopCount);
-		counter += 1;
-	}
+	let angle = 10;
 	
+	fireShot(45);
+	wait(10);
+	fireShot(135);
+	wait(10);
+	fireShot(225);
+	wait(10);
+	fireShot(315);
+	wait(60);
+	fireShot(0);
+	wait(10);
+	fireShot(90);
+	wait(10);
+	fireShot(180);
+	wait(10);
+	fireShot(270);
+}
+
+//fires three bouncy shots approx to that angle
+task fireShot(angle) {
+	bounceShot(ObjMove_GetX(objBoss), ObjMove_GetY(objBoss), 3, angle, DOT_RED, 5);
+	bounceShot(ObjMove_GetX(objBoss), ObjMove_GetY(objBoss), 3, angle + 15, DOT_RED, 5);
+	bounceShot(ObjMove_GetX(objBoss), ObjMove_GetY(objBoss), 3, angle - 15, DOT_RED, 5);
+	bounceShot(ObjMove_GetX(objBoss), ObjMove_GetY(objBoss), 2, angle, DOT_RED, 5);
+	bounceShot(ObjMove_GetX(objBoss), ObjMove_GetY(objBoss), 2, angle + 15, DOT_RED, 5);
+	bounceShot(ObjMove_GetX(objBoss), ObjMove_GetY(objBoss), 2, angle - 15, DOT_RED, 5);
 	ObjSound_Play(objBullet);
 }
 
@@ -119,15 +147,25 @@ task bounceShot(x, y, speed, angle, graphic, delay) {
 		//bounces off left or right wall
 		if(ObjRender_GetX(obj) < 0 || ObjRender_GetX(obj) > GetStgFrameWidth && max_bounce > 0) {
 			ObjMove_SetAngle(obj, 180 - ObjMove_GetAngle(obj));
+			if (max_bounce == 2) {
+				ObjShot_SetGraphic(obj, PELLET_RED);
+			}
+			else {
+				ObjShot_SetGraphic(obj, GLOW_RED);
+			}
 			max_bounce -= 1;
-			ObjSound_Play(objBulletWave);
 		}
 		
 		//bounces off top or bottom wall
 		if(ObjRender_GetY(obj) < 0 || ObjRender_GetY(obj) > GetStgFrameHeight && max_bounce > 0) {
 			ObjMove_SetAngle(obj, -ObjMove_GetAngle(obj));
+			if (max_bounce == 2) {
+				ObjShot_SetGraphic(obj, PELLET_RED);
+			}
+			else {
+				ObjShot_SetGraphic(obj, GLOW_RED);
+			}
 			max_bounce -= 1;
-			ObjSound_Play(objBulletWave);
 		}
 		
 		if (max_bounce <= 0) {
